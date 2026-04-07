@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RunBoost — Programa de Lealtad</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black: #0F0F0F;
+  --card: #161616;
+  --card2: #1e1e1e;
+  --border: #282828;
+  --green: #C7F000;
+  --green-dim: rgba(199,240,0,0.07);
+  --white: #ffffff;
+  --grey: #555;
+  --grey2: #999;
+  --bronze: #CD7F32;
+  --silver: #A8A9AD;
+  --gold: #FFD700;
+  --elite: #C7F000;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--black);color:var(--white);font-family:'Barlow',sans-serif;overflow-x:hidden;}
+
+/* NOISE TEXTURE */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:0.4;
+}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 32px;
+  background:rgba(15,15,15,0.85);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;
+  letter-spacing:1px;
+}
+.nav-logo span{color:var(--green);}
+.nav-links{display:flex;gap:24px;}
+.nav-links a{
+  font-size:12px;text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--grey2);text-decoration:none;transition:color 0.2s;
+}
+.nav-links a:hover{color:var(--green);}
+.nav-cta{
+  background:var(--green);color:#000;
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:13px;
+  letter-spacing:1px;text-transform:uppercase;
+  padding:8px 20px;border-radius:100px;border:none;cursor:pointer;
+  transition:all 0.2s;
+}
+.nav-cta:hover{background:#d4ff00;transform:scale(1.04);}
+
+/* HERO */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:120px 24px 80px;
+  position:relative;overflow:hidden;
+}
+.hero-glow{
+  position:absolute;top:10%;left:50%;transform:translateX(-50%);
+  width:700px;height:400px;
+  background:radial-gradient(ellipse,rgba(199,240,0,0.1) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(199,240,0,0.08);border:1px solid rgba(199,240,0,0.25);
+  color:var(--green);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  padding:7px 18px;border-radius:100px;margin-bottom:28px;
+  animation:fadeup 0.6s ease both;
+}
+.hero-tag::before{
+  content:'';width:7px;height:7px;background:var(--green);border-radius:50%;
+  animation:blink 1.5s infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+.hero h1{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:clamp(56px,10vw,120px);font-weight:900;
+  line-height:0.9;text-transform:uppercase;letter-spacing:-2px;
+  margin-bottom:24px;animation:fadeup 0.7s 0.1s ease both;
+}
+.hero h1 .line2{color:var(--green);display:block;}
+.hero p{
+  font-size:16px;color:var(--grey2);max-width:520px;line-height:1.8;
+  margin-bottom:40px;animation:fadeup 0.7s 0.2s ease both;
+}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;animation:fadeup 0.7s 0.3s ease both;}
+.btn-primary{
+  background:var(--green);color:#000;border:none;
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:15px;
+  letter-spacing:1px;text-transform:uppercase;
+  padding:14px 32px;border-radius:100px;cursor:pointer;transition:all 0.2s;
+}
+.btn-primary:hover{background:#d4ff00;transform:translateY(-2px);}
+.btn-ghost{
+  background:transparent;color:var(--white);
+  border:1px solid var(--border);
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;
+  letter-spacing:1px;text-transform:uppercase;
+  padding:14px 32px;border-radius:100px;cursor:pointer;transition:all 0.2s;
+}
+.btn-ghost:hover{border-color:var(--grey2);}
+
+/* STATS BAR */
+.stats-bar{
+  display:flex;justify-content:center;flex-wrap:wrap;gap:0;
+  border:1px solid var(--border);border-radius:16px;
+  overflow:hidden;margin:60px auto;max-width:800px;
+  animation:fadeup 0.7s 0.4s ease both;
+}
+.stat-item{
+  flex:1;min-width:140px;padding:24px 20px;text-align:center;
+  border-right:1px solid var(--border);
+  background:var(--card);
+}
+.stat-item:last-child{border-right:none;}
+.stat-num{
+  font-family:'Barlow Condensed',sans-serif;font-size:40px;font-weight:900;
+  color:var(--green);line-height:1;margin-bottom:6px;
+}
+.stat-lbl{font-size:11px;color:var(--grey2);text-transform:uppercase;letter-spacing:1px;}
+
+@keyframes fadeup{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* SECTIONS */
+section{padding:100px 24px;max-width:1100px;margin:0 auto;}
+.sec-tag{
+  display:inline-block;font-size:10px;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;color:var(--green);margin-bottom:12px;
+}
+.sec-title{
+  font-family:'Barlow Condensed',sans-serif;font-size:clamp(36px,5vw,64px);
+  font-weight:900;text-transform:uppercase;line-height:1;
+  margin-bottom:16px;letter-spacing:-0.5px;
+}
+.sec-title em{color:var(--green);font-style:normal;}
+.sec-sub{font-size:15px;color:var(--grey2);max-width:500px;line-height:1.7;margin-bottom:56px;}
+
+/* NIVELES */
+.levels-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:2px;
+  background:var(--border);border-radius:20px;overflow:hidden;
+}
+@media(max-width:800px){.levels-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:480px){.levels-grid{grid-template-columns:1fr;}}
+
+.level-card{
+  background:var(--card);padding:32px 24px;
+  cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden;
+}
+.level-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  transition:all 0.3s;
+}
+.level-card.bronze::before{background:var(--bronze);}
+.level-card.silver::before{background:var(--silver);}
+.level-card.gold::before{background:var(--gold);}
+.level-card.elite::before{background:var(--green);}
+.level-card:hover{background:var(--card2);transform:translateY(-4px);}
+
+.level-icon{font-size:36px;margin-bottom:16px;display:block;}
+.level-name{
+  font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;
+  text-transform:uppercase;margin-bottom:4px;
+}
+.level-card.bronze .level-name{color:var(--bronze);}
+.level-card.silver .level-name{color:var(--silver);}
+.level-card.gold .level-name{color:var(--gold);}
+.level-card.elite .level-name{color:var(--green);}
+.level-months{font-size:11px;color:var(--grey2);text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;}
+.level-benefits{list-style:none;}
+.level-benefits li{
+  font-size:13px;color:#bbb;padding:7px 0;
+  border-bottom:1px solid var(--border);line-height:1.4;
+  display:flex;gap:8px;align-items:flex-start;
+}
+.level-benefits li:last-child{border-bottom:none;}
+.level-benefits li::before{content:'→';color:var(--green);flex-shrink:0;}
+.level-pts{
+  margin-top:20px;padding:10px 14px;border-radius:8px;
+  font-size:12px;font-weight:600;text-align:center;
+}
+.level-card.bronze .level-pts{background:rgba(205,127,50,0.12);color:var(--bronze);}
+.level-card.silver .level-pts{background:rgba(168,169,173,0.12);color:var(--silver);}
+.level-card.gold .level-pts{background:rgba(255,215,0,0.12);color:var(--gold);}
+.level-card.elite .level-pts{background:var(--green-dim);color:var(--green);}
+
+/* PUNTOS CALCULATOR */
+.calc-wrap{
+  background:var(--card);border:1px solid var(--border);border-radius:20px;
+  overflow:hidden;
+}
+.calc-header{
+  background:linear-gradient(135deg,#0d1a00,#161616);
+  padding:28px 32px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.calc-header-text h3{
+  font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;
+  text-transform:uppercase;
+}
+.calc-header-text p{font-size:13px;color:var(--grey2);}
+.pts-display{
+  font-family:'Barlow Condensed',sans-serif;font-size:52px;font-weight:900;
+  color:var(--green);line-height:1;
+}
+.pts-display span{font-size:14px;color:var(--grey2);display:block;font-family:'Barlow',sans-serif;font-weight:400;}
+
+.calc-body{padding:32px;}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+@media(max-width:600px){.calc-grid{grid-template-columns:1fr;}}
+
+.calc-item{margin-bottom:20px;}
+.calc-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--grey2);margin-bottom:10px;display:flex;justify-content:space-between;}
+.calc-label strong{color:var(--green);}
+input[type=range]{
+  width:100%;height:4px;appearance:none;
+  background:var(--border);border-radius:4px;cursor:pointer;outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  appearance:none;width:18px;height:18px;
+  background:var(--green);border-radius:50%;transition:transform 0.15s;
+}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.3);}
+
+.rewards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:28px;}
+@media(max-width:600px){.rewards-grid{grid-template-columns:1fr;}}
+.reward-item{
+  background:var(--card2);border:1px solid var(--border);border-radius:12px;
+  padding:16px;text-align:center;transition:all 0.3s;cursor:pointer;
+}
+.reward-item:hover{border-color:rgba(199,240,0,0.3);background:var(--green-dim);}
+.reward-item.unlocked{border-color:rgba(199,240,0,0.4);background:var(--green-dim);}
+.reward-item.locked{opacity:0.4;}
+.reward-emoji{font-size:28px;margin-bottom:8px;}
+.reward-name{font-size:13px;font-weight:600;margin-bottom:4px;}
+.reward-pts{font-size:11px;color:var(--grey2);}
+.reward-pts.green{color:var(--green);}
+
+/* UPSELLING */
+.upsell-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:600px){.upsell-grid{grid-template-columns:1fr;}}
+.upsell-card{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  overflow:hidden;transition:all 0.3s;cursor:pointer;
+}
+.upsell-card:hover{border-color:rgba(199,240,0,0.3);transform:translateY(-4px);}
+.upsell-top{
+  padding:24px;background:linear-gradient(135deg,#0d1a00,#161616);
+  border-bottom:1px solid var(--border);
+}
+.upsell-type{
+  font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  margin-bottom:8px;
+}
+.upsell-card:nth-child(1) .upsell-type{color:var(--green);}
+.upsell-card:nth-child(2) .upsell-type{color:#4A90E2;}
+.upsell-card:nth-child(3) .upsell-type{color:#FFD600;}
+.upsell-card:nth-child(4) .upsell-type{color:#FF6B6B;}
+.upsell-title{
+  font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;
+  text-transform:uppercase;margin-bottom:6px;
+}
+.upsell-sub{font-size:12px;color:var(--grey2);}
+.upsell-body{padding:20px 24px;}
+.upsell-example{
+  font-size:13px;color:#bbb;line-height:1.7;margin-bottom:14px;
+}
+.upsell-price{
+  display:flex;align-items:center;gap:10px;
+}
+.price-from{font-size:13px;color:var(--grey2);text-decoration:line-through;}
+.price-to{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:var(--green);}
+.price-save{font-size:11px;color:var(--green);background:var(--green-dim);padding:3px 10px;border-radius:100px;}
+
+/* REFERIDOS */
+.ref-wrap{
+  display:grid;grid-template-columns:1fr 1fr;gap:32px;
+  align-items:center;
+}
+@media(max-width:700px){.ref-wrap{grid-template-columns:1fr;}}
+.ref-steps{list-style:none;}
+.ref-step{
+  display:flex;gap:16px;padding:20px 0;
+  border-bottom:1px solid var(--border);
+}
+.ref-step:last-child{border-bottom:none;}
+.ref-num{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  background:var(--green);color:#000;
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:18px;
+  display:flex;align-items:center;justify-content:center;
+}
+.ref-content h4{font-size:15px;font-weight:600;margin-bottom:4px;}
+.ref-content p{font-size:13px;color:var(--grey2);line-height:1.5;}
+.ref-reward{
+  color:var(--green);font-weight:600;font-size:12px;margin-top:4px;
+}
+
+/* PHONE MOCKUP */
+.phone-wrap{display:flex;justify-content:center;}
+.phone{
+  width:240px;
+  background:#111;border:2px solid #333;border-radius:40px;
+  padding:16px;box-shadow:0 40px 80px rgba(0,0,0,0.6);
+}
+.phone-screen{
+  background:#f0f0f0;border-radius:26px;overflow:hidden;
+}
+.wa-header{
+  background:#075E54;padding:12px 14px;
+  display:flex;align-items:center;gap:10px;
+}
+.wa-avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,var(--green),#2a4a00);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:900;color:#000;flex-shrink:0;
+}
+.wa-name{font-size:11px;font-weight:700;color:#fff;}
+.wa-status{font-size:9px;color:rgba(255,255,255,0.6);}
+.wa-body{padding:12px;display:flex;flex-direction:column;gap:8px;background:#e5ddd5;}
+.wa-msg{
+  background:#fff;border-radius:8px 8px 8px 0;
+  padding:8px 10px;max-width:85%;font-size:9px;color:#111;line-height:1.4;
+  box-shadow:0 1px 2px rgba(0,0,0,0.1);
+}
+.wa-msg.out{
+  background:#d9fdd3;border-radius:8px 8px 0 8px;
+  align-self:flex-end;
+}
+.wa-msg .time{font-size:7px;color:#aaa;text-align:right;margin-top:3px;}
+.wa-msg strong{color:#075E54;}
+.wa-action{
+  background:#25D366;color:#fff;border:none;
+  padding:8px 12px;border-radius:20px;font-size:9px;font-weight:700;
+  margin:4px 0;cursor:pointer;width:100%;
+}
+.wa-input{
+  background:#fff;padding:8px 12px;
+  display:flex;align-items:center;gap:6px;border-top:1px solid #ddd;
+}
+.wa-input-box{
+  flex:1;background:#f0f0f0;border-radius:20px;
+  padding:5px 10px;font-size:8px;color:#999;
+}
+
+/* REVIEWS */
+.reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media(max-width:700px){.reviews-grid{grid-template-columns:1fr;}}
+.review-card{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:24px;transition:all 0.3s;
+}
+.review-card:hover{border-color:rgba(199,240,0,0.2);}
+.review-stars{color:var(--green);font-size:14px;margin-bottom:12px;letter-spacing:2px;}
+.review-text{font-size:13px;color:#bbb;line-height:1.7;margin-bottom:16px;}
+.review-author{display:flex;align-items:center;gap:10px;}
+.review-avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,#1a3800,#2a5a00);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;color:var(--green);flex-shrink:0;
+}
+.review-name{font-size:13px;font-weight:600;}
+.review-level{font-size:10px;}
+
+/* WHATSAPP INTEGRATION */
+.wa-integration{
+  background:linear-gradient(135deg,#0a1f00,#161616);
+  border:1px solid rgba(199,240,0,0.2);border-radius:20px;
+  padding:48px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;
+}
+@media(max-width:700px){.wa-integration{grid-template-columns:1fr;padding:28px;}}
+.wa-flow{list-style:none;}
+.wa-flow-item{
+  display:flex;gap:14px;align-items:flex-start;padding:14px 0;
+  border-bottom:1px solid var(--border);
+}
+.wa-flow-item:last-child{border-bottom:none;}
+.wa-flow-icon{
+  font-size:20px;width:36px;flex-shrink:0;text-align:center;
+}
+.wa-flow-text h4{font-size:14px;font-weight:600;margin-bottom:3px;}
+.wa-flow-text p{font-size:12px;color:var(--grey2);line-height:1.5;}
+.wa-trigger{
+  display:inline-block;background:rgba(37,211,102,0.1);
+  border:1px solid rgba(37,211,102,0.3);color:#25D366;
+  font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;margin-top:4px;
+}
+
+/* CTA FINAL */
+.cta-section{
+  text-align:center;padding:120px 24px;
+  background:linear-gradient(180deg,transparent,rgba(199,240,0,0.04));
+  position:relative;overflow:hidden;
+}
+.cta-section::before{
+  content:'';position:absolute;bottom:-100px;left:50%;transform:translateX(-50%);
+  width:600px;height:400px;
+  background:radial-gradient(ellipse,rgba(199,240,0,0.08) 0%,transparent 65%);
+}
+.cta-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:clamp(48px,8vw,96px);font-weight:900;
+  text-transform:uppercase;line-height:0.9;letter-spacing:-2px;
+  margin-bottom:24px;
+}
+.cta-title em{color:var(--green);font-style:normal;}
+
+/* PROGRESS BAR */
+.progress-section{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:28px;margin-bottom:32px;
+}
+.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.progress-name{font-size:14px;font-weight:600;}
+.progress-level{
+  font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;
+}
+.progress-bar-outer{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:8px;}
+.progress-bar-inner{height:100%;border-radius:4px;background:linear-gradient(90deg,#5a9900,var(--green));transition:width 1s ease;}
+.progress-info{display:flex;justify-content:space-between;font-size:11px;color:var(--grey2);}
+
+/* SCROLL ANIMATIONS */
+.reveal{opacity:0;transform:translateY(30px);transition:all 0.7s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+
+/* TICKER */
+.ticker{
+  background:var(--green);padding:10px 0;overflow:hidden;white-space:nowrap;
+  position:relative;
+}
+.ticker-inner{
+  display:inline-flex;animation:ticker 20s linear infinite;
+}
+.ticker-item{
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:14px;
+  color:#000;text-transform:uppercase;letter-spacing:2px;
+  padding:0 24px;
+}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* FLOATING WA BUTTON */
+.wa-float{
+  position:fixed;bottom:28px;right:28px;z-index:200;
+  width:56px;height:56px;border-radius:50%;
+  background:#25D366;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 20px rgba(37,211,102,0.4);
+  transition:all 0.3s;font-size:24px;
+}
+.wa-float:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(37,211,102,0.6);}
+
+/* FOOTER */
+footer{
+  border-top:1px solid var(--border);padding:32px;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+}
+.footer-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:18px;}
+.footer-logo span{color:var(--green);}
+.footer-text{font-size:11px;color:var(--grey);}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">RUN<span>BOOST</span></div>
+  <div class="nav-links">
+    <a href="#niveles">Niveles</a>
+    <a href="#puntos">Puntos</a>
+    <a href="#referidos">Referidos</a>
+    <a href="#whatsapp">WhatsApp</a>
+  </div>
+  <button class="nav-cta" onclick="document.getElementById('niveles').scrollIntoView({behavior:'smooth'})">Unirme gratis</button>
+</nav>
+
+<!-- TICKER -->
+<div class="ticker" style="margin-top:64px;">
+  <div class="ticker-inner">
+    <span class="ticker-item">🔥 RunBoost Loyalty</span>
+    <span class="ticker-item">★ Programa de Lealtad</span>
+    <span class="ticker-item">📦 Cajas Fit Puebla</span>
+    <span class="ticker-item">⚡ Boost Your Energy</span>
+    <span class="ticker-item">🏆 4 Niveles Exclusivos</span>
+    <span class="ticker-item">💬 WhatsApp Integrado</span>
+    <span class="ticker-item">🔥 RunBoost Loyalty</span>
+    <span class="ticker-item">★ Programa de Lealtad</span>
+    <span class="ticker-item">📦 Cajas Fit Puebla</span>
+    <span class="ticker-item">⚡ Boost Your Energy</span>
+    <span class="ticker-item">🏆 4 Niveles Exclusivos</span>
+    <span class="ticker-item">💬 WhatsApp Integrado</span>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-tag">Proyecto 2 · Programa de Lealtad · RunBoost</div>
+  <h1>
+    Entre más<br>
+    <span class="line2">corres, más</span><br>
+    ganas
+  </h1>
+  <p>El programa de lealtad que convierte tu suscripción mensual en una experiencia que mejora cada mes. Puntos, niveles, referidos y recompensas exclusivas para la comunidad fitness de Puebla.</p>
+  <div class="hero-btns">
+    <button class="btn-primary" onclick="document.getElementById('niveles').scrollIntoView({behavior:'smooth'})">Ver mis beneficios</button>
+    <button class="btn-ghost" onclick="document.getElementById('puntos').scrollIntoView({behavior:'smooth'})">Calcular mis puntos</button>
+  </div>
+</div>
+
+<!-- STATS -->
+<div style="max-width:900px;margin:0 auto;padding:0 24px;">
+  <div class="stats-bar reveal">
+    <div class="stat-item">
+      <div class="stat-num" id="cnt-subs">0</div>
+      <div class="stat-lbl">Suscriptores activos</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="cnt-pts">0</div>
+      <div class="stat-lbl">Puntos entregados</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="cnt-ref">0</div>
+      <div class="stat-lbl">Referidos este mes</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="cnt-save">$0</div>
+      <div class="stat-lbl">Ahorrado por la comunidad</div>
+    </div>
+  </div>
+</div>
+
+<!-- NIVELES -->
+<section id="niveles">
+  <div class="reveal">
+    <div class="sec-tag">01 — Niveles y beneficios</div>
+    <h2 class="sec-title">Cuatro niveles.<br><em>Tú decides</em> hasta dónde llegas.</h2>
+    <p class="sec-sub">Cada mes que permaneces en RunBoost subes de nivel automáticamente. No hay trampas, no hay requisitos ocultos — solo constancia.</p>
+  </div>
+
+  <!-- PROGRESS DEMO -->
+  <div class="progress-section reveal" style="margin-bottom:32px;">
+    <div class="progress-header">
+      <div class="progress-name">Tu progreso de lealtad</div>
+      <div class="progress-level" id="prog-label" style="background:rgba(205,127,50,0.12);color:#CD7F32;">Bronze · Mes 1</div>
+    </div>
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner" id="prog-bar" style="width:10%"></div>
+    </div>
+    <div class="progress-info">
+      <span id="prog-from">Mes 1</span>
+      <span id="prog-next">Siguiente nivel: Silver en mes 3</span>
+      <span id="prog-to">Mes 12+</span>
+    </div>
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+      <button onclick="setMonth(1)" style="background:var(--card2);border:1px solid var(--border);color:var(--grey2);padding:6px 14px;border-radius:100px;font-size:12px;cursor:pointer;">Mes 1</button>
+      <button onclick="setMonth(3)" style="background:var(--card2);border:1px solid var(--border);color:var(--grey2);padding:6px 14px;border-radius:100px;font-size:12px;cursor:pointer;">Mes 3</button>
+      <button onclick="setMonth(6)" style="background:var(--card2);border:1px solid var(--border);color:var(--grey2);padding:6px 14px;border-radius:100px;font-size:12px;cursor:pointer;">Mes 6</button>
+      <button onclick="setMonth(12)" style="background:var(--card2);border:1px solid var(--border);color:var(--grey2);padding:6px 14px;border-radius:100px;font-size:12px;cursor:pointer;">Mes 12</button>
+    </div>
+  </div>
+
+  <div class="levels-grid reveal">
+    <div class="level-card bronze">
+      <span class="level-icon">🥉</span>
+      <div class="level-name">Bronze</div>
+      <div class="level-months">Mes 1 – 2</div>
+      <ul class="level-benefits">
+        <li>Acceso a la caja mensual estándar</li>
+        <li>5 puntos por cada $100 MXN gastados</li>
+        <li>WhatsApp con tips de uso de productos</li>
+        <li>Código de referido personal activo</li>
+      </ul>
+      <div class="level-pts">5 pts por $100 MXN</div>
+    </div>
+    <div class="level-card silver">
+      <span class="level-icon">🥈</span>
+      <div class="level-name">Silver</div>
+      <div class="level-months">Mes 3 – 5</div>
+      <ul class="level-benefits">
+        <li>Todo lo de Bronze incluido</li>
+        <li>Sneak peek del 50% de la siguiente caja</li>
+        <li>8 puntos por cada $100 MXN</li>
+        <li>Descuento 5% en add-ons opcionales</li>
+        <li>Voto en encuesta del producto sorpresa</li>
+      </ul>
+      <div class="level-pts">8 pts por $100 MXN</div>
+    </div>
+    <div class="level-card gold">
+      <span class="level-icon">🥇</span>
+      <div class="level-name">Gold</div>
+      <div class="level-months">Mes 6 – 11</div>
+      <ul class="level-benefits">
+        <li>Todo lo de Silver incluido</li>
+        <li>Producto extra en la caja cada mes</li>
+        <li>Acceso anticipado 48h antes del lanzamiento</li>
+        <li>12 puntos por cada $100 MXN</li>
+        <li>Descuento 10% en add-ons</li>
+        <li>Insignia Gold en perfil de comunidad</li>
+      </ul>
+      <div class="level-pts">12 pts por $100 MXN</div>
+    </div>
+    <div class="level-card elite">
+      <span class="level-icon">⚡</span>
+      <div class="level-name">Elite</div>
+      <div class="level-months">Mes 12 en adelante</div>
+      <ul class="level-benefits">
+        <li>Todo lo de Gold incluido</li>
+        <li>Caja edición limitada exclusiva para Elite</li>
+        <li>15 puntos por cada $100 MXN</li>
+        <li>Personalización mensual de 1 producto</li>
+        <li>Invitación a eventos RunBoost Puebla</li>
+        <li>Mención en redes como embajador</li>
+      </ul>
+      <div class="level-pts">15 pts por $100 MXN</div>
+    </div>
+  </div>
+</section>
+
+<!-- PUNTOS CALCULATOR -->
+<section id="puntos" style="padding-top:0;">
+  <div class="reveal">
+    <div class="sec-tag">02 — Sistema de puntos</div>
+    <h2 class="sec-title">Cada peso cuenta.<br><em>Cada punto</em> vale.</h2>
+    <p class="sec-sub">Acumula puntos con tu suscripción, tus referidos y tus reviews. Canjéalos por productos, descuentos o experiencias exclusivas.</p>
+  </div>
+
+  <div class="calc-wrap reveal">
+    <div class="calc-header">
+      <div class="calc-header-text">
+        <h3>Calculadora de puntos RunBoost</h3>
+        <p>Ajusta los valores y ve cuánto has acumulado</p>
+      </div>
+      <div>
+        <div class="pts-display" id="total-pts">0</div>
+        <span>puntos acumulados</span>
+      </div>
+    </div>
+    <div class="calc-body">
+      <div class="calc-grid">
+        <div>
+          <div class="calc-item">
+            <div class="calc-label">Meses suscritos <strong id="v-months">1</strong></div>
+            <input type="range" id="r-months" min="1" max="12" value="1" oninput="calcPts()">
+          </div>
+          <div class="calc-item">
+            <div class="calc-label">Amigos referidos <strong id="v-refs">0</strong></div>
+            <input type="range" id="r-refs" min="0" max="10" value="0" oninput="calcPts()">
+          </div>
+        </div>
+        <div>
+          <div class="calc-item">
+            <div class="calc-label">Reviews dejadas <strong id="v-reviews">0</strong></div>
+            <input type="range" id="r-reviews" min="0" max="12" value="0" oninput="calcPts()">
+          </div>
+          <div class="calc-item">
+            <div class="calc-label">Add-ons comprados <strong id="v-addons">0</strong></div>
+            <input type="range" id="r-addons" min="0" max="5" value="0" oninput="calcPts()">
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:8px;font-size:13px;color:var(--grey2);">
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);">
+          <span>Suscripción mensual ($1,600 MXN)</span>
+          <span id="pts-subs" style="color:var(--green);font-weight:600;">0 pts</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);">
+          <span>Referidos exitosos (200 pts c/u)</span>
+          <span id="pts-refs" style="color:var(--green);font-weight:600;">0 pts</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);">
+          <span>Reviews en Google/Instagram (50 pts c/u)</span>
+          <span id="pts-reviews" style="color:var(--green);font-weight:600;">0 pts</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;">
+          <span>Add-ons comprados (pts según nivel)</span>
+          <span id="pts-addons" style="color:var(--green);font-weight:600;">0 pts</span>
+        </div>
+      </div>
+
+      <div class="rewards-grid">
+        <div class="reward-item" id="rw-1">
+          <div class="reward-emoji">☕</div>
+          <div class="reward-name">Shaker RunBoost</div>
+          <div class="reward-pts" id="rw-1-pts">500 pts requeridos</div>
+        </div>
+        <div class="reward-item" id="rw-2">
+          <div class="reward-emoji">💊</div>
+          <div class="reward-name">Muestra premium</div>
+          <div class="reward-pts" id="rw-2-pts">1,000 pts requeridos</div>
+        </div>
+        <div class="reward-item" id="rw-3">
+          <div class="reward-emoji">📦</div>
+          <div class="reward-name">Caja extra gratis</div>
+          <div class="reward-pts" id="rw-3-pts">2,500 pts requeridos</div>
+        </div>
+        <div class="reward-item" id="rw-4">
+          <div class="reward-emoji">👕</div>
+          <div class="reward-name">Merch RunBoost</div>
+          <div class="reward-pts" id="rw-4-pts">3,500 pts requeridos</div>
+        </div>
+        <div class="reward-item" id="rw-5">
+          <div class="reward-emoji">🎟️</div>
+          <div class="reward-name">Evento fit Puebla</div>
+          <div class="reward-pts" id="rw-5-pts">5,000 pts requeridos</div>
+        </div>
+        <div class="reward-item" id="rw-6">
+          <div class="reward-emoji">⚡</div>
+          <div class="reward-name">Caja personalizada</div>
+          <div class="reward-pts" id="rw-6-pts">8,000 pts requeridos</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- UPSELLING / CROSS-SELLING -->
+<section style="padding-top:0;">
+  <div class="reveal">
+    <div class="sec-tag">03 — Upselling y cross-selling</div>
+    <h2 class="sec-title">Más que una caja.<br><em>Un ecosistema</em> fit.</h2>
+    <p class="sec-sub">RunBoost te ofrece productos complementarios en el momento exacto en que los necesitas — sin presión, solo cuando tiene sentido para tu entrenamiento.</p>
+  </div>
+
+  <div class="upsell-grid reveal">
+    <div class="upsell-card">
+      <div class="upsell-top">
+        <div class="upsell-type">⬆ Upselling — Upgrade de caja</div>
+        <div class="upsell-title">Caja Premium</div>
+        <div class="upsell-sub">Más productos, marcas exclusivas, tamaños full-size</div>
+      </div>
+      <div class="upsell-body">
+        <p class="upsell-example">En el mes 3, cuando el cliente ya está enganchado, RunBoost ofrece la Caja Premium con 2 productos extra de marcas internacionales y un sneak peek de 100% para el mes siguiente.</p>
+        <div class="upsell-price">
+          <span class="price-from">$1,600</span>
+          <span class="price-to">$2,200</span>
+          <span class="price-save">+38% valor</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="upsell-card">
+      <div class="upsell-top">
+        <div class="upsell-type">↔ Cross-selling — Caja temática</div>
+        <div class="upsell-title">Box Running</div>
+        <div class="upsell-sub">Curada para runners y atletas de Puebla</div>
+      </div>
+      <div class="upsell-body">
+        <p class="upsell-example">Para suscriptores que marcaron "Running" en el configurador, se ofrece un add-on de la Caja Running con geles de energía, electrolitos y accesorios de pista — el mes antes de la Carrera Ibero.</p>
+        <div class="upsell-price">
+          <span class="price-from">Sin add-on</span>
+          <span class="price-to">+$380</span>
+          <span class="price-save">Temática</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="upsell-card">
+      <div class="upsell-top">
+        <div class="upsell-type">⚡ Upselling — Suscripción anual</div>
+        <div class="upsell-title">Plan Anual</div>
+        <div class="upsell-sub">12 meses, precio bloqueado, Elite desde día 1</div>
+      </div>
+      <div class="upsell-body">
+        <p class="upsell-example">Al mes 6 se ofrece el plan anual con precio bloqueado de $1,400 MXN/mes — $200 de ahorro — y acceso inmediato a los beneficios Elite sin esperar hasta el mes 12.</p>
+        <div class="upsell-price">
+          <span class="price-from">$19,200</span>
+          <span class="price-to">$16,800</span>
+          <span class="price-save">Ahorra $2,400</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="upsell-card">
+      <div class="upsell-top">
+        <div class="upsell-type">↔ Cross-selling — Regalo fitness</div>
+        <div class="upsell-title">Gift Box</div>
+        <div class="upsell-sub">Regala RunBoost a alguien que entrena</div>
+      </div>
+      <div class="upsell-body">
+        <p class="upsell-example">En diciembre y San Valentín, RunBoost ofrece Gift Boxes de 1 o 3 meses con empaque especial. El suscriptor activo que regala acumula 500 puntos extra y su amigo entra directo en nivel Bronze.</p>
+        <div class="upsell-price">
+          <span class="price-from">—</span>
+          <span class="price-to">$1,600–4,500</span>
+          <span class="price-save">+500 pts</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REFERIDOS -->
+<section id="referidos" style="padding-top:0;">
+  <div class="reveal">
+    <div class="sec-tag">04 — Estrategia de referidos y reviews</div>
+    <h2 class="sec-title">Tu comunidad es<br><em>tu mejor</em> anuncio.</h2>
+    <p class="sec-sub">Cada suscriptor activo tiene un código de referido único. Compartirlo no es solo generoso — te conviene directamente.</p>
+  </div>
+
+  <div class="ref-wrap reveal">
+    <div>
+      <ol class="ref-steps">
+        <li class="ref-step">
+          <div class="ref-num">1</div>
+          <div class="ref-content">
+            <h4>Comparte tu código único</h4>
+            <p>RunBoost genera un código personalizado tipo MAFER-RB en tu perfil. Lo compartes por WhatsApp, Instagram Stories o en persona en el gym.</p>
+            <div class="ref-reward">Tú no pierdes nada — solo ganas cuando tu amigo se suscribe.</div>
+          </div>
+        </li>
+        <li class="ref-step">
+          <div class="ref-num">2</div>
+          <div class="ref-content">
+            <h4>Tu amigo recibe descuento en su primera caja</h4>
+            <p>Al usar tu código obtiene $150 MXN de descuento en su primera caja. RunBoost absorbe ese costo — tú no pagas nada.</p>
+            <div class="ref-reward">Tu amigo: -$150 MXN en su primera caja</div>
+          </div>
+        </li>
+        <li class="ref-step">
+          <div class="ref-num">3</div>
+          <div class="ref-content">
+            <h4>Tú acumulas 200 puntos por referido</h4>
+            <p>En el momento que tu amigo completa su primer pago, 200 puntos caen automáticamente en tu cuenta — sin hacer nada más.</p>
+            <div class="ref-reward">Tú: +200 pts (equivale a $80 MXN en recompensas)</div>
+          </div>
+        </li>
+        <li class="ref-step">
+          <div class="ref-num">4</div>
+          <div class="ref-content">
+            <h4>Reviews = puntos extra</h4>
+            <p>Deja una reseña en Google, Instagram o en el sitio Wix y acumulas 50 puntos por cada una. Máximo 3 reviews por mes válidas.</p>
+            <div class="ref-reward">Hasta +150 pts/mes solo por opinar</div>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <!-- PHONE WHATSAPP -->
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="wa-header">
+            <div class="wa-avatar">RB</div>
+            <div>
+              <div class="wa-name">RunBoost 📦</div>
+              <div class="wa-status">En línea</div>
+            </div>
+          </div>
+          <div class="wa-body">
+            <div class="wa-msg">
+              ¡Hola! 👋 Tu código de referido está listo:<br><br>
+              <strong>MAFER-RB2026</strong><br><br>
+              Compártelo y gana <strong>200 puntos</strong> por cada amigo que se suscriba 🔥
+              <div class="time">10:32 ✓✓</div>
+            </div>
+            <div class="wa-msg">
+              🏆 Tu nivel actual: <strong>Silver</strong><br>
+              Puntos acumulados: <strong>1,240 pts</strong><br>
+              Próximo nivel: Gold en mes 6
+              <div class="time">10:32 ✓✓</div>
+            </div>
+            <button class="wa-action">Ver mis recompensas →</button>
+            <div class="wa-msg out">
+              Perfecto, lo comparto ahorita
+              <div class="time">10:33 ✓✓</div>
+            </div>
+            <div class="wa-msg">
+              ¡Tu caja de abril se renueva el viernes! 📦<br>
+              Vota: ¿qué sorpresa quieres?<br><br>
+              <strong>A)</strong> Proteína edición especial<br>
+              <strong>B)</strong> Kit hidratación verano
+              <div class="time">10:35 ✓✓</div>
+            </div>
+            <button class="wa-action" style="background:#128C7E;">Votar por mi favorito →</button>
+          </div>
+          <div class="wa-input">
+            <div class="wa-input-box">Escribe un mensaje...</div>
+            <span style="font-size:16px;">📎</span>
+            <span style="font-size:16px;">🎤</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHATSAPP INTEGRATION -->
+<section id="whatsapp" style="padding-top:0;">
+  <div class="reveal">
+    <div class="sec-tag">05 — Integración WhatsApp</div>
+    <h2 class="sec-title">Todo pasa<br><em>en un mensaje.</em></h2>
+    <p class="sec-sub">WhatsApp Business API conectado con Wix Automations. El cliente no necesita abrir ninguna app extra — todo llega solo.</p>
+  </div>
+
+  <div class="wa-integration reveal">
+    <div>
+      <ul class="wa-flow">
+        <li class="wa-flow-item">
+          <div class="wa-flow-icon">🎉</div>
+          <div class="wa-flow-text">
+            <h4>Bienvenida automática</h4>
+            <p>Al confirmar el pago, WhatsApp envía el código de referido, el nivel actual y el sneak peek disponible según su nivel.</p>
+            <span class="wa-trigger">Trigger: pago confirmado</span>
+          </div>
+        </li>
+        <li class="wa-flow-item">
+          <div class="wa-flow-icon">📊</div>
+          <div class="wa-flow-text">
+            <h4>Reporte de puntos mensual</h4>
+            <p>El día 1 de cada mes, el cliente recibe su resumen: puntos acumulados, nivel actual, recompensas disponibles y progreso al siguiente nivel.</p>
+            <span class="wa-trigger">Trigger: día 1 de cada mes</span>
+          </div>
+        </li>
+        <li class="wa-flow-item">
+          <div class="wa-flow-icon">🗳️</div>
+          <div class="wa-flow-text">
+            <h4>Votación del producto sorpresa</h4>
+            <p>5 días antes de la renovación, mensaje con 2 opciones para el producto sorpresa de la siguiente caja. El cliente vota respondiendo A o B.</p>
+            <span class="wa-trigger">Trigger: día 25 de cada mes</span>
+          </div>
+        </li>
+        <li class="wa-flow-item">
+          <div class="wa-flow-icon">🏆</div>
+          <div class="wa-flow-text">
+            <h4>Notificación de subida de nivel</h4>
+            <p>Cuando el cliente pasa de Bronze a Silver, de Silver a Gold, o de Gold a Elite, recibe un mensaje especial con sus nuevos beneficios desbloqueados.</p>
+            <span class="wa-trigger">Trigger: cambio de nivel</span>
+          </div>
+        </li>
+        <li class="wa-flow-item">
+          <div class="wa-flow-icon">👥</div>
+          <div class="wa-flow-text">
+            <h4>Confirmación de referido exitoso</h4>
+            <p>En el momento que un amigo referido completa su primer pago, el referidor recibe un mensaje notificando los 200 puntos ganados.</p>
+            <span class="wa-trigger">Trigger: primer pago de referido</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--green);font-weight:700;margin-bottom:20px;">Métricas esperadas del canal WhatsApp</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div style="text-align:center;padding:16px;background:var(--card2);border-radius:12px;border:1px solid var(--border);">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;color:var(--green);">98%</div>
+            <div style="font-size:11px;color:var(--grey2);margin-top:4px;">tasa de apertura vs 20% email</div>
+          </div>
+          <div style="text-align:center;padding:16px;background:var(--card2);border-radius:12px;border:1px solid var(--border);">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;color:var(--green);">45%</div>
+            <div style="font-size:11px;color:var(--grey2);margin-top:4px;">tasa de respuesta a votaciones</div>
+          </div>
+          <div style="text-align:center;padding:16px;background:var(--card2);border-radius:12px;border:1px solid var(--border);">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;color:var(--green);">60%</div>
+            <div style="font-size:11px;color:var(--grey2);margin-top:4px;">de pausas regresan en mes 2</div>
+          </div>
+          <div style="text-align:center;padding:16px;background:var(--card2);border-radius:12px;border:1px solid var(--border);">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;color:var(--green);">3.2x</div>
+            <div style="font-size:11px;color:var(--grey2);margin-top:4px;">más retención vs sin WhatsApp</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section style="padding-top:0;">
+  <div class="reveal">
+    <div class="sec-tag">06 — Reviews de la comunidad</div>
+    <h2 class="sec-title">Lo que dice<br><em>Puebla fit.</em></h2>
+  </div>
+  <div class="reviews-grid reveal">
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">"Llevo 6 meses y ya soy Gold. El producto extra que me llega cada mes vale completamente la suscripción. Este mes vino una proteína de chocolate que no encuentro en ningún GNC de Puebla."</p>
+      <div class="review-author">
+        <div class="review-avatar">AL</div>
+        <div>
+          <div class="review-name">Andrea L.</div>
+          <div class="review-level" style="color:#FFD700;">🥇 Gold · 6 meses</div>
+        </div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">"Referí a 4 amigos del gym y acumulé 800 puntos. Los canjeé por el shaker y la caja extra gratis. Básicamente un mes gratis por recomendar algo que ya me encantaba."</p>
+      <div class="review-author">
+        <div class="review-avatar">DM</div>
+        <div>
+          <div class="review-name">Diego M.</div>
+          <div class="review-level" style="color:#A8A9AD;">🥈 Silver · 4 meses</div>
+        </div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">"El sistema de votación por WhatsApp es lo mejor. Este mes voté por los geles de running y ganó mi opción. Siento que la caja la diseño yo. Es muy diferente a comprar en cualquier tienda."</p>
+      <div class="review-author">
+        <div class="review-avatar">IV</div>
+        <div>
+          <div class="review-name">Ivanna V.</div>
+          <div class="review-level" style="color:#CD7F32;">🥉 Bronze · 2 meses</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<div class="cta-section">
+  <div class="reveal">
+    <p class="sec-tag">Únete hoy</p>
+    <h2 class="cta-title">Empieza en<br><em>Bronze.</em><br>Llega a Elite.</h2>
+    <p style="font-size:16px;color:var(--grey2);max-width:420px;margin:0 auto 40px;line-height:1.8;">Tu primera caja llega este mes. Tu racha empieza hoy. El programa de lealtad se activa automáticamente con tu primera suscripción.</p>
+    <div class="hero-btns" style="justify-content:center;">
+      <button class="btn-primary">Suscribirme por $1,600 MXN →</button>
+      <button class="btn-ghost">Ver niveles completos</button>
+    </div>
+    <p style="margin-top:24px;font-size:12px;color:var(--grey);">Sin contratos · Cancela cuando quieras · Envío incluido en Puebla</p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">RUN<span>BOOST</span></div>
+  <div class="footer-text">Tarea Proyecto 2 · Programa de Lealtad · Medios de Pagos Digitales 2026 · Mafer · Ivanna · Diego · Ana · Ximena</div>
+  <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:900;color:var(--green);">BOOST YOUR ENERGY ↑</div>
+</footer>
+
+<!-- FLOATING WA BUTTON -->
+<button class="wa-float" title="WhatsApp RunBoost">💬</button>
+
+<script>
+// COUNTER ANIMATION
+function animateCounter(el, end, prefix='', suffix='', duration=2000){
+  let start=0, step=end/80;
+  const timer=setInterval(()=>{
+    start+=step;
+    if(start>=end){start=end;clearInterval(timer);}
+    el.textContent=prefix+Math.floor(start).toLocaleString('es-MX')+suffix;
+  },duration/80);
+}
+
+// SCROLL REVEAL
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('visible');
+      if(e.target.classList.contains('stats-bar')){
+        setTimeout(()=>{
+          animateCounter(document.getElementById('cnt-subs'),247);
+          animateCounter(document.getElementById('cnt-pts'),18430);
+          animateCounter(document.getElementById('cnt-ref'),34);
+          animateCounter(document.getElementById('cnt-save'),0,'$','',1500);
+          setTimeout(()=>animateCounter(document.getElementById('cnt-save'),52400,'$'),200);
+        },300);
+      }
+    }
+  });
+},{threshold:0.15});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+// PROGRESS BAR
+function setMonth(m){
+  const bar=document.getElementById('prog-bar');
+  const label=document.getElementById('prog-label');
+  const next=document.getElementById('prog-next');
+  const from=document.getElementById('prog-from');
+  const pct=Math.min((m/12)*100,100);
+  bar.style.width=pct+'%';
+  from.textContent='Mes '+m;
+  if(m<=2){
+    label.textContent='Bronze · Mes '+m;
+    label.style.background='rgba(205,127,50,0.12)';
+    label.style.color='#CD7F32';
+    next.textContent='Siguiente nivel: Silver en mes 3';
+  }else if(m<=5){
+    label.textContent='Silver · Mes '+m;
+    label.style.background='rgba(168,169,173,0.12)';
+    label.style.color='#A8A9AD';
+    next.textContent='Siguiente nivel: Gold en mes 6';
+  }else if(m<=11){
+    label.textContent='Gold · Mes '+m;
+    label.style.background='rgba(255,215,0,0.12)';
+    label.style.color='#FFD700';
+    next.textContent='Siguiente nivel: Elite en mes 12';
+  }else{
+    label.textContent='⚡ Elite · Mes '+m;
+    label.style.background='rgba(199,240,0,0.1)';
+    label.style.color='#C7F000';
+    next.textContent='¡Nivel máximo alcanzado! Beneficios exclusivos activos';
+  }
+}
+
+// POINTS CALCULATOR
+const REWARDS=[500,1000,2500,3500,5000,8000];
+function calcPts(){
+  const months=+document.getElementById('r-months').value;
+  const refs=+document.getElementById('r-refs').value;
+  const reviews=+document.getElementById('r-reviews').value;
+  const addons=+document.getElementById('r-addons').value;
+
+  document.getElementById('v-months').textContent=months;
+  document.getElementById('v-refs').textContent=refs;
+  document.getElementById('v-reviews').textContent=reviews;
+  document.getElementById('v-addons').textContent=addons;
+
+  const ptsPerMonth = months<=2?80:months<=5?128:months<=11?192:240;
+  const ptsSubs=months*ptsPerMonth;
+  const ptsRefs=refs*200;
+  const ptsRevs=reviews*50;
+  const ptsAdd=addons*100;
+  const total=ptsSubs+ptsRefs+ptsRevs+ptsAdd;
+
+  document.getElementById('pts-subs').textContent=ptsSubs.toLocaleString()+' pts';
+  document.getElementById('pts-refs').textContent=ptsRefs.toLocaleString()+' pts';
+  document.getElementById('pts-reviews').textContent=ptsRevs.toLocaleString()+' pts';
+  document.getElementById('pts-addons').textContent=ptsAdd.toLocaleString()+' pts';
+  document.getElementById('total-pts').textContent=total.toLocaleString();
+
+  REWARDS.forEach((req,i)=>{
+    const el=document.getElementById('rw-'+(i+1));
+    const ptsEl=document.getElementById('rw-'+(i+1)+'-pts');
+    if(total>=req){
+      el.classList.add('unlocked');el.classList.remove('locked');
+      ptsEl.textContent='¡Desbloqueado! '+req.toLocaleString()+' pts';
+      ptsEl.className='reward-pts green';
+    }else{
+      el.classList.remove('unlocked');
+      const diff=req-total;
+      ptsEl.textContent='Faltan '+diff.toLocaleString()+' pts';
+      ptsEl.className='reward-pts';
+      el.classList.toggle('locked', total<req*0.3);
+    }
+  });
+}
+calcPts();
+</script>
+</body>
+</html>
